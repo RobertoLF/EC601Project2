@@ -26,15 +26,15 @@ def getBearerToken():
     inspect=r.json()
     return inspect["access_token"]
 
-def getMentions(token,userId,nextToken,getDate):
-    mentionsURL = "https://api.twitter.com/2/users/" + userId + "/mentions"
+def getTweets(token,userId,nextToken,getDate):
+    mentionsURL = "https://api.twitter.com/2/users/" + userId + "/tweets"
     if getDate == 1:
         global start
         start = input(""""Please enter a start date past 2011-01-01 to determine the oldest timestamp
-from which mentions will be provided in the format 'YYYY-MM-DD':""")
+from which tweets will be provided in the format 'YYYY-MM-DD':""")
         global end
         end = input(""""Please enter an end date past your start date to determine the newest timestamp
-from which mentions will be provided in the format 'YYYY-MM-DD':""")
+from which tweets will be provided in the format 'YYYY-MM-DD':""")
         print("\n")
         startYear = int(start[0:4])
         if startYear < 2011:
@@ -70,6 +70,42 @@ from which mentions will be provided in the format 'YYYY-MM-DD':""")
         print("The entered end date was invalid\n")
     return inspect 
 
+def getUserID(handle,token):
+    usernameURL = "https://api.twitter.com/2/users/by/username/" + handle
+    header = {'Authorization':"Bearer " + token}
+    r = requests.get(url=usernameURL, headers=header)
+    userData = r.json()
+    userID = ""
+    if "errors" in userData:
+        print("Twitter handle not found! \n")
+    else:
+        userID = userData["data"]["id"]
+    return userID
+
+def getSentiment(tweets):
+    textToAnalyze = str(tweets)
+    googleDocument = language_v1.Document(content=textToAnalyze, type_=language_v1.Document.Type.PLAIN_TEXT)
+    sentiment = client.analyze_sentiment(request={'document':googleDocument}).document_sentiment
+    score = sentiment.score
+    if score < -0.75 :
+        print("The sentiment of the found tweets is nearly entirely negative! :( \n")
+    elif score < -0.5 and score > -0.75 :
+        print("The sentiment of the found tweets is very negative. \n ")
+    elif score < -0.25 and score > -0.5 :
+        print("The sentiment of the found tweets is negative. \n")
+    elif score < 0 and score > -0.25 : 
+        print("The sentiment of the found tweets is slightly negative and nearly neutral. \n")
+    elif score == 0 :
+        print("The sentiment of the found tweets is neutral. :| \n")
+    elif score > 0 and score < 0.25:
+        print("The sentiment of the found tweets is slightly positive and nearly neutral. \n")
+    elif score > 0.25 and score < 0.5 :
+        print("The sentiment of the found tweets is negative. \n")
+    elif score > 0.5 and score < 0.75 :
+        print("The sentiment of the found tweets is very positive. \n")
+    elif score > 0.75:
+        print("The sentiment of the found tweets is nearly entirely positive! :) \n")
+
 os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/rluisfue/Documents/ec601-327314-c0d53011a952.json"
 client = language_v1.LanguageServiceClient()
 interrupt = 'Y'
@@ -86,71 +122,42 @@ saveResults = "N"
 while (interrupt == 'Y'):
     if firstime == 1:
         print("Hello!\n")
-        print("""This program searches twitter for all the mentions of a twitter handle 
-given a start date and determines the sentiment of the found tweets.
-The maximum number of mentions this program can find is 700. \n""")
+        print("""This program searches twitter for all the tweets of a specified user
+given a start/end date and subsequently determines the sentiment of the found tweets.
+The maximum number of Tweets this program can find is 700. \n""")
         
-    handle = input("Enter a twitter handle to search mentions for: ")
+    handle = input("Enter a twitter handle to search tweets for: ")
     print("\n")
     token = getBearerToken()
-    usernameURL = "https://api.twitter.com/2/users/by/username/" + handle
-    header = {'Authorization':"Bearer " + token}
-    r = requests.get(url=usernameURL, headers=header)
-    userData = r.json()
-    userID = ""
-    if "errors" in userData:
-        print("Twitter handle not found! \n")
-    else:
-        userID = userData["data"]["id"]
+    userID = getUserID(handle,token)
     nextToken = 0
     tweetCount= 0
     getDate = 1
     skip = 0
-    mentions  = {}
+    tweets  = {}
     while nextToken != 1 and userID != "" and TimeError == 0:
-        mentions.update(getMentions(token,userID,nextToken,getDate))
+        tweets.update(getTweets(token,userID,nextToken,getDate))
         if TimeError == 0:
-            if "meta" in mentions:
-                meta = mentions["meta"]
-            if "data" in mentions:  
-                tweetCount += len(mentions["data"])
+            if "meta" in tweets:
+                meta = tweets["meta"]
+            if "data" in tweets:  
+                tweetCount += len(tweets["data"])
             if "next_token" in meta:
                 nextToken = meta["next_token"]
             else:
                 nextToken =1
             getDate = 0
         if tweetCount > 800:
-            print("""We found  %d mentions for the %s handle between the dates of %s & %s.
+            print("""Found  %d tweets for the %s handle between the dates of %s & %s.
 That is the limit of tweets this program can access! \n""" %(tweetCount,handle,start,end))
             skip = 1
              
     if userID != "" and TimeError == 0 and skip == 0:    
         print("""
-We found %d mentions for the %s handle between the dates of %s & %s. \n""" %(tweetCount,handle,start,end))     
+Found %d tweets for the %s handle between the dates of %s & %s. \n""" %(tweetCount,handle,start,end))     
 
     if tweetCount > 0:
-        textToAnalyze = str(mentions)
-        googleDocument = language_v1.Document(content=textToAnalyze, type_=language_v1.Document.Type.PLAIN_TEXT)
-        sentiment = client.analyze_sentiment(request={'document':googleDocument}).document_sentiment
-        score = sentiment.score
-        if score < -0.75 :
-            print("The sentiment of the found mentions is nearly entirely negative! :( \n")
-        elif score < -0.5 and score > -0.75 :
-            print("The sentiment of the found mentions is very negative. \n ")
-        elif score < -0.25 and score > -0.5 :
-            print("The sentiment of the found mentions is negative. \n")
-        elif score < 0 and score > -0.25 : 
-            print("The sentiment of the found mentions is slightly negative and nearly neutral. \n")
-        elif score == 0 :
-            print("The sentiment of the found mentions is neutral. :| \n")
-        elif score > 0 and score < 0.25:
-            print("The sentiment of the found mentions is slightly positive and nearly neutral. \n")
-        elif score > 0.25 and score < 0.5 :
-            print("The sentiment of the found mentions is negative. \n")
-        elif score > 0.5 and score < 0.75 :
-            print("The sentiment of the found mentions is very positive. \n")
-        elif score > 0.75:
-            print("The sentiment of the found mentions is nearly entirely positive! :) \n")
+        getSentiment(tweets)
         
     interrupt = input("Would you like to try again? (Y/N): ")
     print('\n')
@@ -158,8 +165,6 @@ We found %d mentions for the %s handle between the dates of %s & %s. \n""" %(twe
     TimeError = 0
     errors = {}
     params = {}
-    mentions = {}
+    tweets = {}
     queryStart = ""
     queryEnd = ""
-
-
