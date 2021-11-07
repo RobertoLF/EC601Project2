@@ -10,10 +10,10 @@ from google.cloud import language_v1
 import os 
 
 def getBearerToken():
-    URL = "https://api.twitter.com/oauth2/token"
+    bearerURL = "https://api.twitter.com/oauth2/token"
     parameter = {'grant_type':"client_credentials"}
-    accessTokenFile = open(r"/Users/rluisfue/.spyder-py3/EC601/AcessToken.txt")
-    secretFile = open(r"/Users/rluisfue/.spyder-py3/EC601/AccessTokenSecret.txt")
+    accessTokenFile = open(r"/Users/rluisfue/spyder-py3/EC601/AcessToken.txt")
+    secretFile = open(r"/Users/rluisfue/spyder-py3/EC601/AccessTokenSecret.txt")
     accessToken = accessTokenFile.read()
     secret = secretFile.read()
     authenticator = accessToken + ':' + secret
@@ -22,12 +22,12 @@ def getBearerToken():
     b64Authenticator = b64Bytes.decode('ascii')
     header = {'Host':"api.twitter.com",'User-Agent':"22055381",'Authorization':"Basic " + b64Authenticator,
               'Content-Type':"application/x-www-form-urlencoded;charset=UTF-8",'Accept-Encoding':"gzip"}
-    r = requests.post(url=URL, headers=header, data = parameter)
+    r = requests.post(url=bearerURL, headers=header, data = parameter)
     inspect=r.json()
     return inspect["access_token"]
 
 def getMentions(token,userId,nextToken,getDate):
-    URL = "https://api.twitter.com/2/users/" + userId + "/mentions"
+    mentionsURL = "https://api.twitter.com/2/users/" + userId + "/mentions"
     if getDate == 1:
         global start
         start = input(""""Please enter a start date past 2011-01-01 to determine the oldest timestamp
@@ -49,11 +49,11 @@ from which mentions will be provided in the format 'YYYY-MM-DD':""")
         queryStart = start + "T00:00:01-04:00"
         global queryEnd
         queryEnd = end + "T00:00:01-04:00"
-    parameters = {'max_results':"100",'start_time':queryStart,'end_time':queryEnd}
+    parameters = {'max_results':100,'start_time':queryStart,'end_time':queryEnd}
     if nextToken != 0:
         parameters["pagination_token"] = nextToken
     headers = {'Authorization':"Bearer " + token}
-    r = requests.get(url=URL,params=parameters,headers=headers)
+    r = requests.get(url=mentionsURL,params=parameters,headers=headers)
     inspect = r.json() 
     global errors
     global params
@@ -93,9 +93,9 @@ The maximum number of mentions this program can find is 700. \n""")
     handle = input("Enter a twitter handle to search mentions for: ")
     print("\n")
     token = getBearerToken()
-    URL = "https://api.twitter.com/2/users/by/username/" + handle
+    usernameURL = "https://api.twitter.com/2/users/by/username/" + handle
     header = {'Authorization':"Bearer " + token}
-    r = requests.get(url=URL, headers=header)
+    r = requests.get(url=usernameURL, headers=header)
     userData = r.json()
     userID = ""
     if "errors" in userData:
