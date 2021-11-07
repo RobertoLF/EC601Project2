@@ -16,7 +16,7 @@ jobs:
       - name: Create google authentication file.
         env: 
           GOOGLE_KEY: ${{ secrets.GOOGLE_KEY }}
-          run: echo $GOOGLE_KEY > ec601-327314-c0d53011a952.json
+        run: echo $GOOGLE_KEY > ec601-327314-c0d53011a952.json
       - name: Run tests with pytest
         env: 
           TWITTER_SECRET: ${{ secrets.TWITTER_SECRET }}
