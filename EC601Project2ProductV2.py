@@ -9,7 +9,7 @@ import base64
 from google.cloud import language_v1
 import os 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.get_env('GOOGLE_KEY')
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get('GOOGLE_KEY')
 client = language_v1.LanguageServiceClient()
 start = ""
 end = ""
@@ -21,8 +21,8 @@ errors = {"":""}
 def getBearerToken():
     bearerURL = "https://api.twitter.com/oauth2/token"
     parameter = {'grant_type':"client_credentials"}
-    accessToken = os.get_env('TWITTER_ACCESS_TOKEN')
-    secret = os.get_env('TWITTER_SECRET')
+    accessToken = os.environ.get('TWITTER_ACCESS_TOKEN')
+    secret = os.environ.get('TWITTER_SECRET')
     authenticator = accessToken + ':' + secret
     autheticatorBytes = authenticator.encode('ascii')
     b64Bytes = base64.b64encode(autheticatorBytes)
