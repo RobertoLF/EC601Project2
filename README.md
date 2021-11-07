@@ -19,4 +19,10 @@ This python script searches for mentions of a specified twitter handle with time
 This python script finds the sentiment of any user input text file using the google NLP API. 
 
 ### File: EC601Project2Product.py
-This python script searches for mentions of a specified twitter handle with time stamps ranging between user specified dates abd finds the sentiment of the found tweets using the google NLP API. This script can find and quantify the sentiment for a maximum of ~800 tweets per search.
+This python script searches for mentions of a specified twitter handle with time stamps ranging between user specified dates and finds the sentiment of the found tweets using the google NLP API. This script can find and quantify the sentiment for a maximum of ~800 tweets per search.
+
+### File: EC601Project2ProductV2.py
+This python script searches for the tweets made from a specified twitter handle with time stamps ranging between user specified dates. The program also finds the sentiment of the found tweets using the google NLP API. This script can find and quantify the sentiment for a maximum of ~3200 tweets per search. The reason for pivoting to tweets and not user mentions is that the twitter mentions API suddenly started to return no results even when there are mentions to be found. 
+
+### File: test_project2.py
+Unit tests for EC601Project2ProductV2.py
