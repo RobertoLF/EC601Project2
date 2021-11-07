@@ -1,4 +1,4 @@
-# EC601Project2
+# EC601Project2/3
 
 ## The purpose of this project is to gain practice with using the twitter and google NLP APIs. 
 
