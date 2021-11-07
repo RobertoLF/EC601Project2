@@ -9,7 +9,7 @@ import base64
 from google.cloud import language_v1
 import os 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = os.environ.get('GOOGLE_KEY')
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "ec601-327314-c0d53011a952.json"
 client = language_v1.LanguageServiceClient()
 start = ""
 end = ""
