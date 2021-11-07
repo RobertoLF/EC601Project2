@@ -9,7 +9,7 @@ import base64
 from google.cloud import language_v1
 import os 
 
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "/Users/rluisfue/Documents/ec601-327314-c0d53011a952.json"
+os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = ".env/credentials/ec601-327314-c0d53011a952.json"
 client = language_v1.LanguageServiceClient()
 start = ""
 end = ""
@@ -21,8 +21,8 @@ errors = {"":""}
 def getBearerToken():
     bearerURL = "https://api.twitter.com/oauth2/token"
     parameter = {'grant_type':"client_credentials"}
-    accessTokenFile = open(r"/Users/rluisfue/spyder-py3/EC601/AcessToken.txt")
-    secretFile = open(r"/Users/rluisfue/spyder-py3/EC601/AccessTokenSecret.txt")
+    accessTokenFile = open(r".env/credentials/AcessToken.txt")
+    secretFile = open(r"/.env/credentials/AccessTokenSecret.txt")
     accessToken = accessTokenFile.read()
     secret = secretFile.read()
     authenticator = accessToken + ':' + secret
